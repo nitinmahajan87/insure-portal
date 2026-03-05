@@ -7,8 +7,14 @@ interface PolicyStatusBadgeProps {
   className?: string;
 }
 
+const FALLBACK_CONFIG = {
+  label: "Unknown",
+  classes: "bg-slate-100 text-slate-600 border border-slate-200",
+  dotClass: "bg-slate-400",
+};
+
 export function PolicyStatusBadge({ status, className }: PolicyStatusBadgeProps) {
-  const config = POLICY_STATUS_CONFIG[status];
+  const config = POLICY_STATUS_CONFIG[status] ?? FALLBACK_CONFIG;
   return (
     <span
       className={cn(

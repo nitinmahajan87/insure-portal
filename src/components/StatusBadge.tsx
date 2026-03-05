@@ -3,12 +3,18 @@ import { SYNC_STATUS_CONFIG } from "@/lib/statusColors";
 import type { SyncStatus } from "@/api/types/syncLog";
 
 interface StatusBadgeProps {
-  status: SyncStatus;
+  status: SyncStatus | string;
   className?: string;
 }
 
+const FALLBACK_CONFIG = {
+  label: "Unknown",
+  classes: "bg-slate-100 text-slate-600 border border-slate-200",
+  dotClass: "bg-slate-400",
+};
+
 export function StatusBadge({ status, className }: StatusBadgeProps) {
-  const config = SYNC_STATUS_CONFIG[status];
+  const config = SYNC_STATUS_CONFIG[status] ?? FALLBACK_CONFIG;
   return (
     <span
       className={cn(

@@ -3,6 +3,7 @@ import type {
   AuditLog,
   AuditPage,
   LogHistory,
+  EmployeeHistory,
   BackendErrorsResponse,
   BackendTransactionsResponse,
 } from "@/api/types/syncLog";
@@ -38,6 +39,7 @@ export const logsApi = {
       employee_code: item.employee_code,
       source: item.source,
       status: item.status,
+      policy_status: item.policy_status,
       timestamp: item.timestamp,
       transaction_type: item.transaction_type,
       insurer_reference_id: item.insurer_reference_id,
@@ -57,5 +59,13 @@ export const logsApi = {
   retry: async (logId: number): Promise<{ message: string }> => {
     const res = await apiClient.post(`/api/v1/logs/${logId}/retry`);
     return res.data as { message: string };
+  },
+
+  /** GET /api/v1/logs/employee/{code}/history — Full 360° employee history */
+  getEmployeeHistory: async (employeeCode: string): Promise<EmployeeHistory> => {
+    const res = await apiClient.get(
+      `/api/v1/logs/employee/${encodeURIComponent(employeeCode)}/history`
+    );
+    return res.data as EmployeeHistory;
   },
 };

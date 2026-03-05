@@ -1,10 +1,10 @@
-import { CheckCircle2, ArrowRight, RotateCcw, Copy, Check } from "lucide-react";
+import { CheckCircle2, ArrowRight, RotateCcw, Copy, Check, Info } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface SubmitSuccessProps {
-  variant: "add" | "remove";
+  variant: "add" | "remove" | "duplicate" | "updated";
   employeeName: string;
   transactionId: string;
   onReset: () => void;
@@ -12,13 +12,34 @@ interface SubmitSuccessProps {
 
 const CONFIG = {
   add: {
-    title: "Employee Added",
+    title: "Employee Enrolled",
     body: (name: string) =>
       `${name} has been queued for insurance sync. Track the status in the Audit Log.`,
     resetLabel: "Add Another Employee",
     iconBg: "bg-green-50",
     iconColor: "text-green-600",
     border: "border-green-100",
+    Icon: CheckCircle2,
+  },
+  updated: {
+    title: "Employee Updated",
+    body: (name: string) =>
+      `${name}'s details have been updated and re-synced to the insurer.`,
+    resetLabel: "Add Another Employee",
+    iconBg: "bg-blue-50",
+    iconColor: "text-blue-600",
+    border: "border-blue-100",
+    Icon: CheckCircle2,
+  },
+  duplicate: {
+    title: "Already Enrolled",
+    body: (name: string) =>
+      `${name} is already enrolled with the same details. No changes were made.`,
+    resetLabel: "Add Another Employee",
+    iconBg: "bg-slate-100",
+    iconColor: "text-slate-500",
+    border: "border-slate-200",
+    Icon: Info,
   },
   remove: {
     title: "Removal Queued",
@@ -28,6 +49,7 @@ const CONFIG = {
     iconBg: "bg-amber-50",
     iconColor: "text-amber-600",
     border: "border-amber-100",
+    Icon: CheckCircle2,
   },
 };
 
@@ -38,6 +60,8 @@ export function SubmitSuccess({
   onReset,
 }: SubmitSuccessProps) {
   const cfg = CONFIG[variant];
+  const Icon = cfg.Icon;
+  const isDuplicate = variant === "duplicate";
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
@@ -61,7 +85,7 @@ export function SubmitSuccess({
             cfg.iconBg
           )}
         >
-          <CheckCircle2 className={cn("h-5 w-5", cfg.iconColor)} />
+          <Icon className={cn("h-5 w-5", cfg.iconColor)} />
         </div>
         <div>
           <p className="font-semibold text-slate-800">{cfg.title}</p>
@@ -69,8 +93,8 @@ export function SubmitSuccess({
         </div>
       </div>
 
-      {/* Transaction ID */}
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+      {/* Transaction ID — hidden for duplicates (no new transaction was created) */}
+      {!isDuplicate && <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
           Transaction ID
         </p>
@@ -102,7 +126,7 @@ export function SubmitSuccess({
         <p className="mt-2 text-xs text-slate-400">
           Use this ID to look up the record in the Audit Log.
         </p>
-      </div>
+      </div>}
 
       {/* Actions */}
       <div className="flex flex-wrap items-center gap-3">

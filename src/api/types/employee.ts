@@ -3,11 +3,11 @@ import { z } from "zod";
 // ── Enums ─────────────────────────────────────────────────────────────────────
 
 export const PolicyStatus = z.enum([
-  "PENDING_COVERAGE",
-  "ACTIVE",
-  "SOFT_REJECTED",
-  "HARD_REJECTED",
-  "TERMINATED",
+  "PENDING_ISSUANCE",  // Sent to insurer, awaiting confirmation
+  "ISSUED",            // Insurer confirmed coverage
+  "SOFT_REJECTED",     // Business rule failure — can retry
+  "LAPSED",            // Coverage period ended
+  "CANCELLED",         // Manually cancelled
 ]);
 export type PolicyStatus = z.infer<typeof PolicyStatus>;
 

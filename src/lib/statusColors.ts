@@ -1,4 +1,4 @@
-import type { SyncStatus } from "@/api/types/syncLog";
+// SyncStatus used as string index for runtime lookups — no import needed
 import type { PolicyStatus } from "@/api/types/employee";
 
 // ── SyncStatus UI config ─────────────────────────────────────────────────────
@@ -11,7 +11,7 @@ export interface StatusConfig {
   dotClass: string;
 }
 
-export const SYNC_STATUS_CONFIG: Record<SyncStatus, StatusConfig> = {
+export const SYNC_STATUS_CONFIG: Record<string, StatusConfig> = {
   PENDING: {
     label: "Pending",
     classes: "bg-yellow-50 text-yellow-700 border border-yellow-200",
@@ -52,34 +52,54 @@ export const SYNC_STATUS_CONFIG: Record<SyncStatus, StatusConfig> = {
     classes: "bg-purple-50 text-purple-700 border border-purple-200",
     dotClass: "bg-purple-400",
   },
+  COMPLETED_OFFLINE: {
+    label: "Completed (Offline)",
+    classes: "bg-teal-50 text-teal-700 border border-teal-200",
+    dotClass: "bg-teal-500",
+  },
+  COMPLETED_BOTH: {
+    label: "Completed (Both)",
+    classes: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    dotClass: "bg-emerald-500",
+  },
+  PENDING_OFFLINE: {
+    label: "Pending (Offline)",
+    classes: "bg-yellow-50 text-yellow-700 border border-yellow-200",
+    dotClass: "bg-yellow-400",
+  },
+  PENDING_BOTH: {
+    label: "Pending (Both)",
+    classes: "bg-amber-50 text-amber-700 border border-amber-200",
+    dotClass: "bg-amber-400",
+  },
 };
 
 // ── PolicyStatus UI config ────────────────────────────────────────────────────
 
 export const POLICY_STATUS_CONFIG: Record<PolicyStatus, StatusConfig> = {
-  PENDING_COVERAGE: {
-    label: "Pending Coverage",
+  PENDING_ISSUANCE: {
+    label: "Pending Issuance",   // HR-friendly: sent to insurer, waiting for policy number
     classes: "bg-yellow-50 text-yellow-700 border border-yellow-200",
     dotClass: "bg-yellow-400",
   },
-  ACTIVE: {
-    label: "Covered",
+  ISSUED: {
+    label: "Covered",            // HR-friendly: insurer confirmed, employee is insured
     classes: "bg-green-50 text-green-700 border border-green-200",
     dotClass: "bg-green-500",
   },
   SOFT_REJECTED: {
-    label: "Soft Rejected",
+    label: "Needs Review",       // HR-friendly: business rule failure, HR can fix & retry
     classes: "bg-orange-50 text-orange-700 border border-orange-200",
     dotClass: "bg-orange-400",
   },
-  HARD_REJECTED: {
-    label: "Rejected",
-    classes: "bg-red-50 text-red-700 border border-red-200",
-    dotClass: "bg-red-500",
-  },
-  TERMINATED: {
-    label: "Terminated",
+  LAPSED: {
+    label: "Lapsed",             // Coverage period ended (e.g. annual renewal missed)
     classes: "bg-slate-100 text-slate-600 border border-slate-200",
     dotClass: "bg-slate-400",
+  },
+  CANCELLED: {
+    label: "Cancelled",          // Manually cancelled by HR or insurer
+    classes: "bg-red-50 text-red-700 border border-red-200",
+    dotClass: "bg-red-500",
   },
 };

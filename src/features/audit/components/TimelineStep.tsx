@@ -1,7 +1,8 @@
 import { format } from "date-fns";
 import { User, Cpu, Building2, RefreshCw, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SYNC_STATUS_CONFIG } from "@/lib/statusColors";
+import { SYNC_STATUS_CONFIG, POLICY_STATUS_CONFIG } from "@/lib/statusColors";
+import type { PolicyStatus } from "@/api/types/employee";
 import type { TimelineEvent } from "@/api/types/syncLog";
 
 interface TimelineStepProps {
@@ -10,11 +11,13 @@ interface TimelineStepProps {
 }
 
 const ACTOR_CONFIG: Record<string, { label: string; Icon: React.ElementType; classes: string }> = {
-  HR_USER:             { label: "HR User",       Icon: User,        classes: "bg-slate-100 text-slate-600" },
-  HR_USER_MANUAL_RETRY:{ label: "HR User",       Icon: User,        classes: "bg-slate-100 text-slate-600" },
-  CELERY_WORKER:       { label: "System",         Icon: Cpu,         classes: "bg-blue-50 text-blue-600" },
-  INSURER_CALLBACK:    { label: "Insurer",        Icon: Building2,   classes: "bg-emerald-50 text-emerald-700" },
-  RECONCILIATION_TASK: { label: "Reconciliation", Icon: RefreshCw,   classes: "bg-purple-50 text-purple-700" },
+  HR_USER:              { label: "HR User",       Icon: User,        classes: "bg-slate-100 text-slate-600" },
+  HR_USER_MANUAL_RETRY: { label: "HR User",       Icon: User,        classes: "bg-slate-100 text-slate-600" },
+  CELERY_WORKER:        { label: "System",        Icon: Cpu,         classes: "bg-blue-50 text-blue-600" },
+  CELERY_CHUNK_WORKER:  { label: "System",        Icon: Cpu,         classes: "bg-blue-50 text-blue-600" },
+  SYSTEM_INGESTION:     { label: "Ingestion",     Icon: Cpu,         classes: "bg-violet-50 text-violet-700" },
+  INSURER_CALLBACK:     { label: "Insurer",       Icon: Building2,   classes: "bg-emerald-50 text-emerald-700" },
+  RECONCILIATION_TASK:  { label: "Reconciliation",Icon: RefreshCw,   classes: "bg-purple-50 text-purple-700" },
 };
 
 function getActorConfig(actor: string) {
@@ -38,8 +41,12 @@ export function TimelineStep({ event, isLast }: TimelineStepProps) {
     typeof event.details["error"] === "string"
       ? event.details["error"]
       : typeof event.details?.["note"] === "string"
-      ? undefined // notes are not errors
+      ? undefined
       : undefined;
+
+  const policyConfig = event.policy_status
+    ? (POLICY_STATUS_CONFIG[event.policy_status as PolicyStatus] ?? null)
+    : null;
 
   return (
     <div className="relative flex gap-4">
@@ -59,6 +66,11 @@ export function TimelineStep({ event, isLast }: TimelineStepProps) {
           <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", statusConfig.classes)}>
             {statusConfig.label}
           </span>
+          {policyConfig && (
+            <span className={cn("rounded-full border px-2 py-0.5 text-xs font-medium", policyConfig.classes)}>
+              {policyConfig.label}
+            </span>
+          )}
           <time className="text-xs text-slate-400" dateTime={event.timestamp}>
             {format(new Date(event.timestamp), "MMM d, yyyy · h:mm:ss a")}
           </time>

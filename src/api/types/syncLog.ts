@@ -49,11 +49,13 @@ export interface BackendTransactionItem {
   source: SyncSource;
   employee_code: string | null;
   status: string;
+  policy_status: string | null;
   insurer_reference_id: string | null;
   rejection_reason: string | null;
   callback_received_at: string | null;
   timestamp: string;
   raw_response?: Record<string, unknown> | null;
+  is_force?: boolean;
 }
 
 export interface BackendErrorsResponse {
@@ -73,6 +75,7 @@ export interface TimelineEvent {
   actor: string;
   timestamp: string;
   details?: Record<string, unknown> | null;
+  policy_status?: string | null;
 }
 
 export interface LogHistory {
@@ -88,9 +91,11 @@ export interface AuditLog {
   id: number;
   employee_code: string | null;
   source: SyncSource;
-  status: string;
+  status: string;           // delivery pipeline status (sync_status)
+  policy_status?: string | null;  // insurance coverage status (from employees table)
   timestamp: string;
   transaction_type: string | null;
+  is_force?: boolean;       // true = HR bypassed "not enrolled" guard
   // errors
   error_message?: string | null;
   retry_count?: number;
@@ -109,3 +114,23 @@ export interface AuditPage {
 
 // Alias so existing imports of SyncLog keep working
 export type SyncLog = AuditLog;
+
+// ── Employee 360° History ─────────────────────────────────────────────────────
+
+export interface EmployeeTransaction {
+  log_id: number;
+  transaction_id: string | null;
+  transaction_type: string | null;
+  source: SyncSource;
+  status: string;
+  policy_status: string | null;
+  is_force?: boolean;
+  timestamp: string;
+  events: TimelineEvent[];
+}
+
+export interface EmployeeHistory {
+  employee_code: string;
+  total_transactions: number;
+  transactions: EmployeeTransaction[];
+}

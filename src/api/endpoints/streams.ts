@@ -7,15 +7,23 @@ export interface StreamResult {
 }
 
 export const streamsApi = {
-  /** POST /api/v1/streams/add — Real-time single employee addition */
+  /** POST /api/v1/stream/add — Real-time single employee addition */
   addEmployee: async (payload: AddEmployeeForm): Promise<StreamResult> => {
-    const res = await apiClient.post("/api/v1/streams/add", payload);
-    return res.data as StreamResult;
+    const res = await apiClient.post("/api/v1/stream/add", payload);
+    const d = res.data as { tracking_id?: number; transaction_id?: string; message: string };
+    return {
+      transaction_id: d.transaction_id ?? String(d.tracking_id ?? ""),
+      message: d.message,
+    };
   },
 
   /** POST /api/v1/stream/remove — Real-time single employee removal */
   removeEmployee: async (payload: RemoveEmployeeForm): Promise<StreamResult> => {
     const res = await apiClient.post("/api/v1/stream/remove", payload);
-    return res.data as StreamResult;
+    const d = res.data as { tracking_id?: number; transaction_id?: string; message: string };
+    return {
+      transaction_id: d.transaction_id ?? String(d.tracking_id ?? ""),
+      message: d.message,
+    };
   },
 };

@@ -1,15 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { streamsApi } from "@/api/endpoints/streams";
-import type { AddEmployeeForm } from "@/api/types/employee";
+import { portalApi } from "@/api/endpoints/portal";
+import type { PortalAddForm } from "@/api/types/portal";
 
 export function useAddEmployee() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: AddEmployeeForm) => streamsApi.addEmployee(payload),
-
+    mutationFn: (payload: PortalAddForm) => portalApi.addEmployee(payload),
     onSuccess: () => {
-      // New employee is now pending — refresh dashboard KPIs and audit log
       void qc.invalidateQueries({ queryKey: ["dashboard"] });
       void qc.invalidateQueries({ queryKey: ["audit"] });
     },

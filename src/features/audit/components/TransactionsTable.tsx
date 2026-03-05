@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { History, RefreshCw, AlertTriangle } from "lucide-react";
+import { History, RefreshCw, AlertTriangle, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/StatusBadge";
+import { PolicyStatusBadge } from "@/components/PolicyStatusBadge";
+import type { PolicyStatus } from "@/api/types/employee";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { Pagination } from "@/components/Pagination";
 import { TimelineDrawer } from "./TimelineDrawer";
@@ -13,6 +15,18 @@ import type { AuditLog } from "@/api/types/syncLog";
 const SOURCE_BADGE: Record<string, string> = {
   ONLINE: "bg-sky-50 text-sky-700 border-sky-200",
   BATCH:  "bg-violet-50 text-violet-700 border-violet-200",
+};
+
+const TYPE_BADGE: Record<string, string> = {
+  ADDITION: "bg-green-50 text-green-700 border-green-200",
+  UPDATE:   "bg-blue-50 text-blue-700 border-blue-200",
+  DELETION: "bg-red-50 text-red-700 border-red-200",
+};
+
+const TYPE_LABEL: Record<string, string> = {
+  ADDITION: "Add",
+  UPDATE:   "Update",
+  DELETION: "Remove",
 };
 
 export function TransactionsTable() {
@@ -57,7 +71,7 @@ export function TransactionsTable() {
             <table className="min-w-full divide-y divide-slate-100 text-sm">
               <thead className="bg-slate-50">
                 <tr>
-                  {["Employee", "Source", "Type", "Status", "Insurer Ref", "Effective Date", "Date", ""].map(
+                  {["Employee", "Source", "Type", "Delivery Status", "Policy Status", "Insurer Ref", "Effective Date", "Date", ""].map(
                     (h) => (
                       <th
                         key={h}
@@ -90,13 +104,44 @@ export function TransactionsTable() {
                     </td>
 
                     {/* Transaction type */}
-                    <td className="whitespace-nowrap px-4 py-3.5 text-xs text-slate-500">
-                      {log.transaction_type ?? "—"}
+                    <td className="whitespace-nowrap px-4 py-3.5">
+                      <div className="flex items-center gap-1.5">
+                        {log.transaction_type ? (
+                          <span
+                            className={cn(
+                              "rounded-full border px-2 py-0.5 text-xs font-medium",
+                              TYPE_BADGE[log.transaction_type] ?? "bg-slate-100 text-slate-600 border-slate-200"
+                            )}
+                          >
+                            {TYPE_LABEL[log.transaction_type] ?? log.transaction_type}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate-300">—</span>
+                        )}
+                        {log.is_force && (
+                          <span
+                            title="Force-removed: employee had no prior enrolment record"
+                            className="flex items-center gap-0.5 rounded-full border border-red-200 bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700"
+                          >
+                            <ShieldAlert className="h-3 w-3" />
+                            Force
+                          </span>
+                        )}
+                      </div>
                     </td>
 
-                    {/* Status */}
+                    {/* Delivery Status */}
                     <td className="whitespace-nowrap px-4 py-3.5">
                       <StatusBadge status={log.status} />
+                    </td>
+
+                    {/* Policy Status */}
+                    <td className="whitespace-nowrap px-4 py-3.5">
+                      {log.policy_status ? (
+                        <PolicyStatusBadge status={log.policy_status as PolicyStatus} />
+                      ) : (
+                        <span className="text-xs text-slate-300">—</span>
+                      )}
                     </td>
 
                     {/* Insurer Reference */}

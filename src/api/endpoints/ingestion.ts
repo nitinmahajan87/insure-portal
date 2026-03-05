@@ -8,7 +8,7 @@ export interface IngestionResult {
 }
 
 export const ingestionApi = {
-  /** POST /api/v1/ingestion/additions — Bulk XLSX/CSV upload */
+  /** POST /api/v1/additions — Bulk XLSX/CSV upload */
   uploadAdditions: async (
     file: File,
     onUploadProgress?: (percent: number) => void
@@ -16,7 +16,7 @@ export const ingestionApi = {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await apiClient.post("/api/v1/ingestion/additions", formData, {
+    const res = await apiClient.post("/api/v1/additions", formData, {
       headers: { "Content-Type": "multipart/form-data" },
       onUploadProgress: onUploadProgress
         ? (evt) => {
