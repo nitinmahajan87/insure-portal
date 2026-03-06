@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { format } from "date-fns";
-import { Download, FileSpreadsheet, RefreshCw, AlertTriangle, Inbox } from "lucide-react";
+import { Download, FileSpreadsheet, RefreshCw, AlertTriangle, Inbox, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TableSkeleton } from "@/components/TableSkeleton";
 import { useDeliveryHistory } from "../hooks/useDeliveryHistory";
-import { downloadBlob } from "@/lib/downloadBlob";
+import { ingestionApi } from "@/api/endpoints/ingestion";
 import { getErrorMessage } from "@/lib/errorParser";
 
 export function FileHistoryTable() {
@@ -63,7 +64,7 @@ export function FileHistoryTable() {
                       </div>
                       <div className="min-w-0">
                         <p className="truncate font-medium text-slate-800">
-                          {file.filename}
+                          {file.file_name}
                         </p>
                         <p className="text-xs text-slate-400">Batch report</p>
                       </div>
@@ -94,13 +95,9 @@ export function FileHistoryTable() {
                     )}
                   </td>
 
-                  {/* Download */}
+                  {/* Download — always fetches a fresh pre-signed URL */}
                   <td className="whitespace-nowrap px-5 py-4">
-                    {file.file_url ? (
-                      <DownloadButton url={file.file_url} filename={file.filename} />
-                    ) : (
-                      <span className="text-xs text-slate-300">Unavailable</span>
-                    )}
+                    <DownloadButton filename={file.file_name} />
                   </td>
                 </tr>
               ))}
@@ -112,21 +109,32 @@ export function FileHistoryTable() {
   );
 }
 
-// ── Download button ──────────────────────────────────────────────────────────
+// ── Download button — always fetches a fresh pre-signed URL ─────────────────
 
-function DownloadButton({ url, filename }: { url: string; filename: string }) {
+function DownloadButton({ filename }: { filename: string }) {
+  const [loading, setLoading] = useState(false);
+
   async function handleClick() {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    downloadBlob(blob, filename);
+    setLoading(true);
+    try {
+      const url = await ingestionApi.getDownloadUrl(filename);
+      window.open(url, "_blank", "noopener,noreferrer");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <button
       onClick={() => void handleClick()}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+      disabled={loading}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-50"
     >
-      <Download className="h-3.5 w-3.5" />
+      {loading ? (
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      ) : (
+        <Download className="h-3.5 w-3.5" />
+      )}
       Download
     </button>
   );

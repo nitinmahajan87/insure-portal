@@ -1,12 +1,10 @@
 import { z } from "zod";
 
 export const BatchFileSchema = z.object({
-  id: z.number(),
-  filename: z.string(),
-  file_url: z.string().nullable(),
+  file_name: z.string(),
   record_count: z.number(),
-  generated_at: z.string().datetime({ offset: true }),
-  generated_by: z.string().nullable(),
+  generated_at: z.string(),
+  download_url: z.string().nullable(),
 });
 export type BatchFile = z.infer<typeof BatchFileSchema>;
 
@@ -21,7 +19,7 @@ export type DeliveryQueueItem = z.infer<typeof DeliveryQueueItemSchema>;
 
 export const DispatchResultSchema = z.object({
   message: z.string(),
-  file_url: z.string().nullable(),
+  download_url: z.string().nullable(),
   record_count: z.number(),
 });
 export type DispatchResult = z.infer<typeof DispatchResultSchema>;
