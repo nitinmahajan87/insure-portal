@@ -53,7 +53,7 @@ export const SYNC_STATUS_CONFIG: Record<string, StatusConfig> = {
     dotClass: "bg-purple-400",
   },
   COMPLETED_OFFLINE: {
-    label: "Completed (Offline)",
+    label: "Dispatched to Insurer",
     classes: "bg-teal-50 text-teal-700 border border-teal-200",
     dotClass: "bg-teal-500",
   },
@@ -72,13 +72,23 @@ export const SYNC_STATUS_CONFIG: Record<string, StatusConfig> = {
     classes: "bg-amber-50 text-amber-700 border border-amber-200",
     dotClass: "bg-amber-400",
   },
+  BROKER_REVIEW_PENDING: {
+    label: "Awaiting Broker Send",
+    classes: "bg-violet-50 text-violet-700 border border-violet-200",
+    dotClass: "bg-violet-500",
+  },
 };
 
 // ── PolicyStatus UI config ────────────────────────────────────────────────────
 
 export const POLICY_STATUS_CONFIG: Record<PolicyStatus, StatusConfig> = {
+  PENDING_DISPATCH: {
+    label: "In Queue",           // HR-friendly: waiting for broker to send dispatch file
+    classes: "bg-slate-50 text-slate-600 border border-slate-200",
+    dotClass: "bg-slate-400",
+  },
   PENDING_ISSUANCE: {
-    label: "Pending Issuance",   // HR-friendly: sent to insurer, waiting for policy number
+    label: "Sent to Insurer",    // HR-friendly: dispatched, waiting for policy number
     classes: "bg-yellow-50 text-yellow-700 border border-yellow-200",
     dotClass: "bg-yellow-400",
   },

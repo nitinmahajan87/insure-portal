@@ -1,9 +1,7 @@
-import { useState } from "react";
-import { CheckCircle2, AlertTriangle, XCircle, RotateCcw, ArrowRight, Download, Loader2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, RotateCcw, ArrowRight, Download } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import type { IngestionResult } from "@/api/endpoints/ingestion";
-import { ingestionApi } from "@/api/endpoints/ingestion";
 import { getErrorMessage } from "@/lib/errorParser";
 import type { BatchMode } from "../hooks/useBatchUpload";
 
@@ -171,8 +169,8 @@ export function UploadResult({ fileName, mode, result, error, onReset }: UploadR
         {/* Download insurer report — only present for OFFLINE / BOTH channels.
             Always fetches a fresh pre-signed URL so the button works even after
             the initial 15-min window has passed. */}
-        {result.filename && result.file_download_url != null && (
-          <ReportDownloadButton filename={result.filename} />
+        {result.file_download_url && (
+          <ReportDownloadButton downloadUrl={result.file_download_url} />
         )}
 
         {result.accepted > 0 && (
@@ -207,31 +205,16 @@ function StatChip({
 
 // ── Report download — always fetches a fresh pre-signed URL ──────────────────
 
-function ReportDownloadButton({ filename }: { filename: string }) {
-  const [loading, setLoading] = useState(false);
-
-  async function handleClick() {
-    setLoading(true);
-    try {
-      const url = await ingestionApi.getDownloadUrl(filename);
-      window.open(url, "_blank", "noopener,noreferrer");
-    } finally {
-      setLoading(false);
-    }
-  }
-
+function ReportDownloadButton({ downloadUrl }: { downloadUrl: string }) {
   return (
-    <button
-      onClick={() => void handleClick()}
-      disabled={loading}
-      className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
+    <a
+      href={downloadUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
     >
-      {loading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <Download className="h-4 w-4" />
-      )}
+      <Download className="h-4 w-4" />
       Download Insurer Report
-    </button>
+    </a>
   );
 }

@@ -41,7 +41,7 @@ function mapIngestionResponse(raw: BackendIngestionResponse): IngestionResult {
 }
 
 export const ingestionApi = {
-  /** POST /api/v1/ingestion/additions — Bulk XLSX/CSV upload */
+  /** POST /api/v1/additions — Bulk XLSX/CSV upload */
   uploadAdditions: async (
     file: File,
     onUploadProgress?: (percent: number) => void
@@ -49,7 +49,7 @@ export const ingestionApi = {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await apiClient.post("/api/v1/ingestion/additions", formData, {
+    const res = await apiClient.post("/api/v1/additions", formData, {
       headers: { "Content-Type": "multipart/form-data" },
       onUploadProgress: onUploadProgress
         ? (evt) => {
@@ -63,7 +63,7 @@ export const ingestionApi = {
     return mapIngestionResponse(res.data as BackendIngestionResponse);
   },
 
-  /** POST /api/v1/ingestion/deletions — Bulk XLSX/CSV upload for removals */
+  /** POST /api/v1/deletions — Bulk XLSX/CSV upload for removals */
   uploadDeletions: async (
     file: File,
     onUploadProgress?: (percent: number) => void
@@ -71,7 +71,7 @@ export const ingestionApi = {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await apiClient.post("/api/v1/ingestion/deletions", formData, {
+    const res = await apiClient.post("/api/v1/deletions", formData, {
       headers: { "Content-Type": "multipart/form-data" },
       onUploadProgress: onUploadProgress
         ? (evt) => {
@@ -86,12 +86,12 @@ export const ingestionApi = {
   },
 
   /**
-   * GET /api/v1/ingestion/download/{filename}
+   * GET /api/v1/download/{filename}
    * Always returns a fresh pre-signed S3 URL — call this whenever the
    * stored file_download_url may have expired (TTL = 15 min by default).
    */
   getDownloadUrl: async (filename: string): Promise<string> => {
-    const res = await apiClient.get(`/api/v1/ingestion/download/${filename}`);
+    const res = await apiClient.get(`/api/v1/download/${filename}`);
     return (res.data as { download_url: string }).download_url;
   },
 };

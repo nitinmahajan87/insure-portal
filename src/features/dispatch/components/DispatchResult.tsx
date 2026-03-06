@@ -31,9 +31,10 @@ export function DispatchResult({ result, onReset }: DispatchResultProps) {
         <div>
           <p className="font-semibold text-slate-800">Dispatch Complete</p>
           <p className="mt-0.5 text-sm text-slate-500">
-            {result.record_count.toLocaleString()} record
-            {result.record_count !== 1 ? "s" : ""} sent to insurer and marked{" "}
-            <span className="font-medium text-emerald-700">COMPLETED</span>.
+            Report generated for {result.record_count.toLocaleString()} record
+            {result.record_count !== 1 ? "s" : ""}. Use{" "}
+            <span className="font-medium text-violet-700">Confirm Sent</span>{" "}
+            in File History once you've sent the file to the insurer.
           </p>
         </div>
       </div>

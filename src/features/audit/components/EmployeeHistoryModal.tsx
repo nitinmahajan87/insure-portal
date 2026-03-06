@@ -10,6 +10,7 @@ import { useEmployeeHistory } from "../hooks/useEmployeeHistory";
 interface EmployeeHistoryModalProps {
   employeeCode: string | null;
   onClose: () => void;
+  corporateId?: string;
 }
 
 const TYPE_BADGE: Record<string, string> = {
@@ -23,8 +24,8 @@ const TYPE_LABEL: Record<string, string> = {
   DELETION: "Remove",
 };
 
-export function EmployeeHistoryModal({ employeeCode, onClose }: EmployeeHistoryModalProps) {
-  const { data, isLoading, isError } = useEmployeeHistory(employeeCode);
+export function EmployeeHistoryModal({ employeeCode, onClose, corporateId }: EmployeeHistoryModalProps) {
+  const { data, isLoading, isError } = useEmployeeHistory(employeeCode, corporateId);
 
   if (!employeeCode) return null;
 

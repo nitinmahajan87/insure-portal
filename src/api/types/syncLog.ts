@@ -5,14 +5,13 @@ export type SyncStatus =
   | "PROVISIONING"
   | "ACTIVE"
   | "FAILED"
-  | "COMPLETED"
-  | "MANUAL_RETRY"
   | "SOFT_REJECTED"
   | "RECONCILIATION_PENDING"
   | "COMPLETED_BOTH"
   | "COMPLETED_OFFLINE"
   | "PENDING_BOTH"
-  | "PENDING_OFFLINE";
+  | "PENDING_OFFLINE"
+  | "BROKER_REVIEW_PENDING";
 
 export type SyncSource = "ONLINE" | "BATCH";
 

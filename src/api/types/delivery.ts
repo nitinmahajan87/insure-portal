@@ -2,9 +2,12 @@ import { z } from "zod";
 
 export const BatchFileSchema = z.object({
   file_name: z.string(),
+  file_path: z.string().nullable().optional(),
   record_count: z.number(),
   generated_at: z.string(),
   download_url: z.string().nullable(),
+  dispatch_status: z.string().nullable().optional(),
+  generated_by: z.string().nullable().optional(),
 });
 export type BatchFile = z.infer<typeof BatchFileSchema>;
 

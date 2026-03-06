@@ -16,8 +16,11 @@ const ACTOR_CONFIG: Record<string, { label: string; Icon: React.ElementType; cla
   CELERY_WORKER:        { label: "System",        Icon: Cpu,         classes: "bg-blue-50 text-blue-600" },
   CELERY_CHUNK_WORKER:  { label: "System",        Icon: Cpu,         classes: "bg-blue-50 text-blue-600" },
   SYSTEM_INGESTION:     { label: "Ingestion",     Icon: Cpu,         classes: "bg-violet-50 text-violet-700" },
-  INSURER_CALLBACK:     { label: "Insurer",       Icon: Building2,   classes: "bg-emerald-50 text-emerald-700" },
-  RECONCILIATION_TASK:  { label: "Reconciliation",Icon: RefreshCw,   classes: "bg-purple-50 text-purple-700" },
+  INSURER_CALLBACK:         { label: "Insurer",        Icon: Building2,   classes: "bg-emerald-50 text-emerald-700" },
+  RECONCILIATION_TASK:      { label: "Reconciliation", Icon: RefreshCw,   classes: "bg-purple-50 text-purple-700" },
+  RECONCILIATION_POLLER:    { label: "Reconciliation", Icon: RefreshCw,   classes: "bg-purple-50 text-purple-700" },
+  RECONCILIATION_SWEEPER:   { label: "Reconciliation", Icon: RefreshCw,   classes: "bg-purple-50 text-purple-700" },
+  BROKER_CONFIRMED_DISPATCH:{ label: "Broker",         Icon: Building2,   classes: "bg-amber-50 text-amber-700"   },
 };
 
 function getActorConfig(actor: string) {

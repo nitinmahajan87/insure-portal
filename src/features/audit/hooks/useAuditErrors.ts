@@ -4,12 +4,12 @@ import { logsApi } from "@/api/endpoints/logs";
 
 const PAGE_SIZE = 20;
 
-export function useAuditErrors() {
+export function useAuditErrors(corporateId?: string) {
   const [page, setPage] = useState(1);
 
   const query = useQuery({
-    queryKey: ["audit", "errors", page],
-    queryFn: () => logsApi.getErrors(page, PAGE_SIZE),
+    queryKey: ["audit", "errors", page, corporateId ?? "self"],
+    queryFn: () => logsApi.getErrors(page, PAGE_SIZE, corporateId),
     placeholderData: (prev) => prev,
   });
 

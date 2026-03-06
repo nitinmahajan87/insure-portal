@@ -16,9 +16,9 @@ const SOURCE_BADGE: Record<string, string> = {
   BATCH:  "bg-violet-50 text-violet-700 border-violet-200",
 };
 
-export function ErrorsTable() {
+export function ErrorsTable({ corporateId }: { corporateId?: string } = {}) {
   const { data, isLoading, isError, error, isFetching, page, pageSize, setPage } =
-    useAuditErrors();
+    useAuditErrors(corporateId);
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
   if (isLoading) return <TableSkeleton rows={10} cols={6} />;
@@ -159,7 +159,7 @@ export function ErrorsTable() {
         )}
       </div>
 
-      <TimelineDrawer log={selectedLog} onClose={() => setSelectedLog(null)} />
+      <TimelineDrawer log={selectedLog} onClose={() => setSelectedLog(null)} corporateId={corporateId} />
     </>
   );
 }

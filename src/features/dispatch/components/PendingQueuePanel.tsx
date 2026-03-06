@@ -1,26 +1,31 @@
 import { useState } from "react";
-import { Eye, Send, AlertTriangle, Clock, XCircle } from "lucide-react";
+import { Eye, Send, AlertTriangle, Clock, XCircle, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { DispatchResult } from "./DispatchResult";
 import { usePreviewReport } from "../hooks/usePreviewReport";
 import { useDispatch } from "../hooks/useDispatch";
+import { useQueueCount } from "../hooks/useQueueCount";
 import { getErrorMessage } from "@/lib/errorParser";
-import { useDashboardStats } from "@/features/dashboard/hooks/useDashboardStats";
+import { useAuthStore } from "@/store/authStore";
 
-export function PendingQueuePanel() {
+interface PendingQueuePanelProps {
+  /** Required when called with a broker-scoped key — scopes all API calls to one corporate. */
+  corporateId?: string;
+}
+
+export function PendingQueuePanel({ corporateId }: PendingQueuePanelProps = {}) {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const preview = usePreviewReport();
-  const dispatch = useDispatch();
+  const preview = usePreviewReport(corporateId);
+  const dispatch = useDispatch(corporateId);
+  const { scope } = useAuthStore();
+  const isBroker = scope === "broker";
 
-  // Reuse dashboard stats for the pending/failed counts — already cached, no extra request
-  const { failedCount, total, isLoading: statsLoading } = useDashboardStats();
-
-  // Pending = total records minus failed + successful (i.e. PENDING + PROVISIONING)
-  // Since we only have failed/success totals from the current API, we surface what we can
-  // and note that a /stats endpoint would enrich this further.
-  const hasDispatchableRecords = total > 0;
+  const { data: queueCount, isLoading: statsLoading } = useQueueCount(corporateId);
+  const pendingCount = queueCount?.pending_count ?? 0;
+  const reviewPendingCount = queueCount?.review_pending_count ?? 0;
+  const hasDispatchableRecords = pendingCount > 0;
 
   // ── After successful dispatch ──────────────────────────────────────────────
   if (dispatch.isSuccess && dispatch.data) {
@@ -55,13 +60,13 @@ export function PendingQueuePanel() {
                 "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold",
                 statsLoading
                   ? "bg-slate-100 text-slate-400"
-                  : failedCount > 0
+                  : pendingCount > 0
                   ? "bg-amber-50 text-amber-700"
                   : "bg-slate-100 text-slate-500"
               )}
             >
               <Clock className="h-3.5 w-3.5" />
-              {statsLoading ? "Loading…" : `${total.toLocaleString()} total records`}
+              {statsLoading ? "Loading…" : `${pendingCount.toLocaleString()} ready to dispatch`}
             </span>
           </div>
         </div>
@@ -82,20 +87,25 @@ export function PendingQueuePanel() {
           />
           <StepTile
             n="3"
-            title="Dispatch"
-            body="Generate the final report and mark all pending records as COMPLETED. Irreversible."
+            title="Broker Dispatches"
+            body={
+              isBroker
+                ? "Generate the final report and mark all pending records as COMPLETED. Irreversible."
+                : "Your broker reviews the preview and dispatches the final report to the insurer on your behalf."
+            }
             safe={false}
           />
         </div>
 
-        {/* ── Warnings ────────────────────────────────────────────────────────── */}
-        {failedCount > 0 && !statsLoading && (
-          <div className="mx-5 mb-4 flex items-start gap-2 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
-            <p className="text-sm text-amber-800">
-              <strong>{failedCount}</strong> record
-              {failedCount !== 1 ? "s" : ""} in the queue have failed syncs. Consider{" "}
-              <strong>retrying</strong> them in the Audit Log before dispatching.
+        {/* ── Banners ─────────────────────────────────────────────────────────── */}
+        {!statsLoading && reviewPendingCount > 0 && (
+          <div className="mx-5 mb-4 flex items-start gap-2 rounded-xl border border-violet-100 bg-violet-50 px-4 py-3">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-violet-500" />
+            <p className="text-sm text-violet-800">
+              <strong>{reviewPendingCount}</strong> record
+              {reviewPendingCount !== 1 ? "s" : ""} are in the report — go to{" "}
+              <strong>File History</strong> and click <strong>Confirm Sent</strong> once
+              you've physically sent the file to the insurer.
             </p>
           </div>
         )}
@@ -113,7 +123,7 @@ export function PendingQueuePanel() {
 
         {/* ── Action buttons ─────────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 px-6 py-5">
-          {/* Preview — safe, no confirmation needed */}
+          {/* Preview — available to both HR and Broker */}
           <button
             onClick={() => preview.mutate()}
             disabled={preview.isPending}
@@ -139,21 +149,28 @@ export function PendingQueuePanel() {
             )}
           </button>
 
-          {/* Dispatch — destructive, requires confirmation */}
-          <button
-            onClick={() => setConfirmOpen(true)}
-            disabled={dispatch.isPending || !hasDispatchableRecords}
-            className={cn(
-              "inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white",
-              "bg-blue-600 transition-colors hover:bg-blue-700 active:bg-blue-800",
-              "disabled:cursor-not-allowed disabled:opacity-50"
-            )}
-          >
-            <Send className="h-4 w-4" />
-            Dispatch to Insurer
-          </button>
+          {/* Dispatch — broker only */}
+          {isBroker ? (
+            <button
+              onClick={() => setConfirmOpen(true)}
+              disabled={dispatch.isPending || !hasDispatchableRecords}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold text-white",
+                "bg-blue-600 transition-colors hover:bg-blue-700 active:bg-blue-800",
+                "disabled:cursor-not-allowed disabled:opacity-50"
+              )}
+            >
+              <Send className="h-4 w-4" />
+              Dispatch to Insurer
+            </button>
+          ) : (
+            <div className="inline-flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-5 py-2.5 text-sm font-medium text-amber-700">
+              <ShieldCheck className="h-4 w-4 shrink-0" />
+              Awaiting Broker Dispatch
+            </div>
+          )}
 
-          {!hasDispatchableRecords && !statsLoading && (
+          {isBroker && !hasDispatchableRecords && !statsLoading && reviewPendingCount === 0 && (
             <p className="text-xs text-slate-400">
               No records in the queue to dispatch.
             </p>
@@ -195,7 +212,7 @@ function StepTile({
 }: {
   n: string;
   title: string;
-  body: string;
+  body: string | React.ReactNode;
   safe: boolean;
 }) {
   return (

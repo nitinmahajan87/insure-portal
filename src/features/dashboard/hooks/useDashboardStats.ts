@@ -9,18 +9,18 @@ const REFRESH_INTERVAL = 30_000; // 30s — dashboard is a live pipeline monitor
  * Both requests use page=1, size=5 — we only need totals + a handful of recent items.
  * Runs in parallel; each result is independent.
  */
-export function useDashboardStats() {
+export function useDashboardStats(corporateId?: string) {
   const [errorsQuery, transactionsQuery] = useQueries({
     queries: [
       {
-        queryKey: ["dashboard", "errors"],
-        queryFn: () => logsApi.getErrors(1, RECENT_SIZE),
+        queryKey: ["dashboard", "errors", corporateId ?? "self"],
+        queryFn: () => logsApi.getErrors(1, RECENT_SIZE, corporateId),
         refetchInterval: REFRESH_INTERVAL,
         staleTime: REFRESH_INTERVAL,
       },
       {
-        queryKey: ["dashboard", "transactions"],
-        queryFn: () => logsApi.getTransactions(1, RECENT_SIZE),
+        queryKey: ["dashboard", "transactions", corporateId ?? "self"],
+        queryFn: () => logsApi.getTransactions(1, RECENT_SIZE, corporateId),
         refetchInterval: REFRESH_INTERVAL,
         staleTime: REFRESH_INTERVAL,
       },

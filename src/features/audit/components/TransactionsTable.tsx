@@ -29,9 +29,9 @@ const TYPE_LABEL: Record<string, string> = {
   DELETION: "Remove",
 };
 
-export function TransactionsTable() {
+export function TransactionsTable({ corporateId }: { corporateId?: string } = {}) {
   const { data, isLoading, isError, error, isFetching, page, pageSize, setPage } =
-    useAuditTransactions();
+    useAuditTransactions(corporateId);
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
   if (isLoading) return <TableSkeleton rows={10} cols={6} />;
@@ -199,7 +199,7 @@ export function TransactionsTable() {
         )}
       </div>
 
-      <TimelineDrawer log={selectedLog} onClose={() => setSelectedLog(null)} />
+      <TimelineDrawer log={selectedLog} onClose={() => setSelectedLog(null)} corporateId={corporateId} />
     </>
   );
 }

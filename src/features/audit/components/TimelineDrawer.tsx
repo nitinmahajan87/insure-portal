@@ -13,6 +13,7 @@ import type { AuditLog } from "@/api/types/syncLog";
 interface TimelineDrawerProps {
   log: AuditLog | null;
   onClose: () => void;
+  corporateId?: string;
 }
 
 const SOURCE_LABEL: Record<string, string> = {
@@ -31,8 +32,8 @@ const TYPE_LABEL: Record<string, string> = {
   DELETION: "Remove",
 };
 
-export function TimelineDrawer({ log, onClose }: TimelineDrawerProps) {
-  const { data: history, isLoading, isError } = useLogHistory(log?.id ?? null);
+export function TimelineDrawer({ log, onClose, corporateId }: TimelineDrawerProps) {
+  const { data: history, isLoading, isError } = useLogHistory(log?.id ?? null, corporateId);
   const [empHistoryCode, setEmpHistoryCode] = useState<string | null>(null);
 
   const isRetryable = log?.status === "FAILED" || log?.status === "SOFT_REJECTED";
@@ -186,6 +187,7 @@ export function TimelineDrawer({ log, onClose }: TimelineDrawerProps) {
     <EmployeeHistoryModal
       employeeCode={empHistoryCode}
       onClose={() => setEmpHistoryCode(null)}
+      corporateId={corporateId}
     />
     </>
   );

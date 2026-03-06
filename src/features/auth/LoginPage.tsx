@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Shield } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import type { ApiKeyScope } from "@/store/authStore";
+import { queryClient } from "@/api/queryClient";
 import { cn } from "@/lib/utils";
 
 export function LoginPage() {
@@ -18,6 +19,8 @@ export function LoginPage() {
       setError("API key is required.");
       return;
     }
+    // Clear all cached query data so the new user's first render is always fresh.
+    queryClient.clear();
     setCredentials({
       apiKey: apiKey.trim(),
       tenantName: tenantName.trim() || undefined,

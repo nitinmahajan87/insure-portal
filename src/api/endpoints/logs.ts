@@ -10,9 +10,9 @@ import type {
 
 export const logsApi = {
   /** GET /api/v1/logs/errors — Failed syncs (limit/offset pagination) */
-  getErrors: async (page: number, pageSize: number): Promise<AuditPage> => {
+  getErrors: async (page: number, pageSize: number, corporateId?: string): Promise<AuditPage> => {
     const res = await apiClient.get("/api/v1/logs/errors", {
-      params: { limit: pageSize, offset: (page - 1) * pageSize },
+      params: { limit: pageSize, offset: (page - 1) * pageSize, ...(corporateId ? { corporate_id: corporateId } : {}) },
     });
     const body = res.data as BackendErrorsResponse;
     const items: AuditLog[] = body.data.map((item) => ({
@@ -29,9 +29,9 @@ export const logsApi = {
   },
 
   /** GET /api/v1/logs/transactions — Successful syncs (limit/offset pagination) */
-  getTransactions: async (page: number, pageSize: number): Promise<AuditPage> => {
+  getTransactions: async (page: number, pageSize: number, corporateId?: string): Promise<AuditPage> => {
     const res = await apiClient.get("/api/v1/logs/transactions", {
-      params: { limit: pageSize, offset: (page - 1) * pageSize },
+      params: { limit: pageSize, offset: (page - 1) * pageSize, ...(corporateId ? { corporate_id: corporateId } : {}) },
     });
     const body = res.data as BackendTransactionsResponse;
     const items: AuditLog[] = body.data.map((item) => ({
@@ -50,8 +50,10 @@ export const logsApi = {
   },
 
   /** GET /api/v1/logs/{log_id}/history — Full event timeline */
-  getHistory: async (logId: number): Promise<LogHistory> => {
-    const res = await apiClient.get(`/api/v1/logs/${logId}/history`);
+  getHistory: async (logId: number, corporateId?: string): Promise<LogHistory> => {
+    const res = await apiClient.get(`/api/v1/logs/${logId}/history`, {
+      params: corporateId ? { corporate_id: corporateId } : {},
+    });
     return res.data as LogHistory;
   },
 
@@ -62,9 +64,10 @@ export const logsApi = {
   },
 
   /** GET /api/v1/logs/employee/{code}/history — Full 360° employee history */
-  getEmployeeHistory: async (employeeCode: string): Promise<EmployeeHistory> => {
+  getEmployeeHistory: async (employeeCode: string, corporateId?: string): Promise<EmployeeHistory> => {
     const res = await apiClient.get(
-      `/api/v1/logs/employee/${encodeURIComponent(employeeCode)}/history`
+      `/api/v1/logs/employee/${encodeURIComponent(employeeCode)}/history`,
+      { params: corporateId ? { corporate_id: corporateId } : {} }
     );
     return res.data as EmployeeHistory;
   },
